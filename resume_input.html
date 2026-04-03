@@ -1,0 +1,615 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Resume Writer Input</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<form method="post">-->
+<!--    <label for="full_name">Full Name: </label><br>-->
+<!--    <input type="text" id="full_name" name="full_name"><br><br>-->
+
+<!--    <label for="email">Email ID: </label><br>-->
+<!--    <input type="email" id="email" name="email"><br><br>-->
+
+<!--    <label for="phone">Phone: </label><br>-->
+<!--    <input type="number" id="phone" name="phone"><br><br>-->
+
+<!--    <label for="location">Location: </label><br>-->
+<!--    <input type="text" id="location" name="location"><br><br>-->
+
+<!--    <label for="linkedin">Linkedin Link: </label><br>-->
+<!--    <input type="url" id="linkedin" name="linkedin"><br><br>-->
+
+<!--    <label for="github">Github Link: </label><br>-->
+<!--    <input type="url" id="github" name="github"><br><br>-->
+
+<!--    <label for="portfolio">Portfolio link: </label><br>-->
+<!--    <input type="url" id="portfolio" name="portfolio"><br><br>-->
+
+<!--    <label for="target_job_role">Target Job Role: </label><br>-->
+<!--    <input type="text" id="target_job_role" name="target_job_role"><br><br>-->
+
+<!--    <label for="years_of_experience">Years of Experience: </label><br>-->
+<!--    <input type="number" id="years_of_experience" name="years_of_experience"><br><br>-->
+
+<!--    <label for="skills">skills: </label><br>-->
+<!--    <input type="text" id="skills" name="skills"><br><br>-->
+
+<!--    <label for="tools_technologies">Tools Technologies: </label><br>-->
+<!--    <input type="text" id="tools_technologies" name="tools_technologies"><br><br>-->
+
+<!--    <label for="projects">Projects: </label><br>-->
+<!--    <input type="text" id="projects" name="projects"><br><br>-->
+
+<!--     <label for="education">Education: </label><br>-->
+<!--    <input type="text" id="education" name="education"><br><br>-->
+
+<!--     <label for="certifications">Certifications: </label><br>-->
+<!--    <input type="text" id="certifications" name="certifications"><br><br>-->
+
+<!--    <label for="achievements">Achievements: </label><br>-->
+<!--    <input type="text" id="achievements" name="achievements"><br><br>-->
+
+<!--    <input type="submit" value="Generate Resume">-->
+
+
+<!--</form>-->
+<!--</body>-->
+<!--</html>-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Writer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #06060a;
+            --surface: #0f0f17;
+            --card: #13131e;
+            --border: rgba(255,255,255,0.07);
+            --border-hover: rgba(99,179,237,0.4);
+            --accent: #63b3ed;
+            --accent2: #f6ad55;
+            --accent3: #68d391;
+            --text: #e8e8f0;
+            --muted: #6b6b85;
+            --label: #a0a0be;
+            --radius: 14px;
+            --glow: 0 0 40px rgba(99,179,237,0.15);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Animated background ── */
+        .bg-canvas {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse 60% 50% at 20% 20%, rgba(99,179,237,0.08) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 60% at 80% 80%, rgba(246,173,85,0.06) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 40% at 60% 10%, rgba(104,211,145,0.05) 0%, transparent 70%);
+        }
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 48px 48px;
+            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+        }
+
+        /* ── Layout ── */
+        .page-wrap {
+            position: relative; z-index: 1;
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 60px 24px 100px;
+        }
+
+        /* ── Header ── */
+        .header {
+            text-align: center;
+            margin-bottom: 56px;
+            opacity: 0; transform: translateY(28px);
+            animation: fadeUp 0.8s cubic-bezier(.22,1,.36,1) 0.1s forwards;
+        }
+        .badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(99,179,237,0.1);
+            border: 1px solid rgba(99,179,237,0.2);
+            border-radius: 100px;
+            padding: 6px 16px;
+            font-size: 12px; font-weight: 500; letter-spacing: 0.08em;
+            color: var(--accent); text-transform: uppercase;
+            margin-bottom: 22px;
+        }
+        .badge-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(2.4rem, 5vw, 3.8rem);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, var(--accent2) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 14px;
+        }
+        .subtitle {
+            color: var(--muted);
+            font-size: 1.05rem;
+            font-weight: 300;
+            max-width: 480px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ── Section blocks ── */
+        .section {
+            margin-bottom: 32px;
+            opacity: 0; transform: translateY(24px);
+        }
+        .section.visible {
+            animation: fadeUp 0.65s cubic-bezier(.22,1,.36,1) forwards;
+        }
+
+        .section-label {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 18px;
+        }
+        .section-icon {
+            width: 32px; height: 32px; border-radius: 8px;
+            display: grid; place-items: center;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--label);
+        }
+        .section-line {
+            flex: 1; height: 1px;
+            background: linear-gradient(90deg, var(--border), transparent);
+        }
+
+        /* color accents per section */
+        .s-personal .section-icon { background: rgba(99,179,237,0.12); color: var(--accent); }
+        .s-links   .section-icon { background: rgba(104,211,145,0.12); color: var(--accent3); }
+        .s-career  .section-icon { background: rgba(246,173,85,0.12);  color: var(--accent2); }
+        .s-skills  .section-icon { background: rgba(159,122,234,0.12); color: #9f7aea; }
+        .s-extra   .section-icon { background: rgba(252,129,129,0.12); color: #fc8181; }
+
+        /* ── Card ── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            display: grid;
+            gap: 20px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .card:hover { border-color: rgba(255,255,255,0.1); box-shadow: var(--glow); }
+
+        .grid-2 { grid-template-columns: 1fr 1fr; }
+        .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+        @media (max-width: 600px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+
+        /* ── Field ── */
+        .field { display: flex; flex-direction: column; gap: 7px; }
+
+        label {
+            font-size: 0.76rem;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--label);
+            transition: color 0.2s;
+        }
+        .field:focus-within label { color: var(--accent); }
+
+        .input-wrap {
+            position: relative;
+            display: flex; align-items: center;
+        }
+        .input-icon {
+            position: absolute; left: 13px;
+            font-size: 15px; opacity: 0.45;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        .field:focus-within .input-icon { opacity: 0.9; }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="url"],
+        textarea {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 400;
+            padding: 11px 14px 11px 38px;
+            outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+            -webkit-appearance: none;
+        }
+        input.no-icon, textarea.no-icon {
+            padding-left: 14px;
+        }
+        input:focus, textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99,179,237,0.12);
+            background: rgba(99,179,237,0.04);
+        }
+        input::placeholder, textarea::placeholder { color: var(--muted); font-weight: 300; }
+        textarea { resize: vertical; min-height: 90px; line-height: 1.6; padding-top: 12px; }
+
+        /* ── Hint ── */
+        .hint { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+        /* ── Submit ── */
+        .submit-wrap {
+            margin-top: 40px;
+            display: flex; flex-direction: column; align-items: center; gap: 14px;
+            opacity: 0; transform: translateY(20px);
+            animation: fadeUp 0.65s cubic-bezier(.22,1,.36,1) 1.0s forwards;
+        }
+        .btn-generate {
+            position: relative;
+            display: inline-flex; align-items: center; gap: 10px;
+            background: linear-gradient(135deg, var(--accent), #4299e1);
+            color: #fff;
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem; font-weight: 700;
+            letter-spacing: 0.03em;
+            border: none; border-radius: 100px;
+            padding: 16px 44px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.3s;
+            box-shadow: 0 8px 32px rgba(99,179,237,0.3), 0 2px 8px rgba(0,0,0,0.4);
+        }
+        .btn-generate::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+            border-radius: inherit;
+        }
+        .btn-generate:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 14px 40px rgba(99,179,237,0.45), 0 4px 12px rgba(0,0,0,0.4);
+        }
+        .btn-generate:active { transform: translateY(0) scale(0.99); }
+
+        .btn-icon { font-size: 18px; }
+
+        /* shimmer on button */
+        .btn-generate::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        .note {
+            font-size: 0.78rem; color: var(--muted);
+            display: flex; align-items: center; gap: 6px;
+        }
+
+        /* ── Progress bar ── */
+        .progress-bar-wrap {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            height: 3px; background: rgba(255,255,255,0.05);
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 12px var(--accent);
+        }
+
+        /* ── Animations ── */
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.7); }
+        }
+        @keyframes shimmer {
+            0% { left: -100%; }
+            60%, 100% { left: 160%; }
+        }
+
+        /* ── Floating label effect for filled inputs ── */
+        input:not(:placeholder-shown) { background: rgba(99,179,237,0.03); }
+
+        /* ── Custom scrollbar ── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+        /* ── Step counter chip ── */
+        .step-chip {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 22px; height: 22px; border-radius: 50%;
+            background: rgba(255,255,255,0.07);
+            font-size: 10px; font-weight: 700; color: var(--muted);
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+<div class="bg-canvas"></div>
+<div class="bg-grid"></div>
+
+<div class="page-wrap">
+
+    <!-- Header -->
+    <div class="header">
+        <div class="badge"><span class="badge-dot"></span>AI-Powered</div>
+        <h1>Build Your Perfect Resume</h1>
+        <p class="subtitle">Fill in your details below and let our AI craft a professional, tailored resume in seconds.</p>
+    </div>
+
+    <form method="post" id="resumeForm">
+
+        <!-- Personal Info -->
+        <div class="section s-personal">
+            <div class="section-label">
+                <div class="section-icon">👤</div>
+                <span class="section-title">Personal Info</span>
+                <div class="section-line"></div>
+                <span class="step-chip">1</span>
+            </div>
+            <div class="card grid-2">
+                <div class="field">
+                    <label for="full_name">Full Name</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">✦</span>
+                        <input type="text" id="full_name" name="full_name" placeholder="Jane Doe">
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="location">Location</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">📍</span>
+                        <input type="text" id="location" name="location" placeholder="San Francisco, CA">
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="email">Email Address</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">✉</span>
+                        <input type="email" id="email" name="email" placeholder="jane@example.com">
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="phone">Phone Number</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">📞</span>
+                        <input type="text" id="phone" name="phone" placeholder="+1 555 000 0000">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Links -->
+        <div class="section s-links">
+            <div class="section-label">
+                <div class="section-icon">🔗</div>
+                <span class="section-title">Online Presence</span>
+                <div class="section-line"></div>
+                <span class="step-chip">2</span>
+            </div>
+            <div class="card grid-3">
+                <div class="field">
+                    <label for="linkedin">LinkedIn</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">in</span>
+                        <input type="url" id="linkedin" name="linkedin" placeholder="linkedin.com/in/jane">
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="github">GitHub</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">⌥</span>
+                        <input type="url" id="github" name="github" placeholder="github.com/jane">
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="portfolio">Portfolio</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">◈</span>
+                        <input type="url" id="portfolio" name="portfolio" placeholder="janedoe.dev">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Career -->
+        <div class="section s-career">
+            <div class="section-label">
+                <div class="section-icon">🎯</div>
+                <span class="section-title">Career Focus</span>
+                <div class="section-line"></div>
+                <span class="step-chip">3</span>
+            </div>
+            <div class="card grid-2">
+                <div class="field">
+                    <label for="target_job_role">Target Job Role</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">🎯</span>
+                        <input type="text" id="target_job_role" name="target_job_role" placeholder="Senior Frontend Engineer">
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="years_of_experience">Years of Experience</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">⏳</span>
+                        <input type="number" id="years_of_experience" name="years_of_experience" placeholder="4" min="0" max="50">
+                    </div>
+                </div>
+                <div class="field" style="grid-column: 1 / -1;">
+                    <label for="education">Education</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">🎓</span>
+                        <input type="text" id="education" name="education" placeholder="B.Tech Computer Science — MIT, 2019">
+                    </div>
+                    <span class="hint">Degree · Major · University · Year</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="section s-skills">
+            <div class="section-label">
+                <div class="section-icon">⚡</div>
+                <span class="section-title">Skills & Tools</span>
+                <div class="section-line"></div>
+                <span class="step-chip">4</span>
+            </div>
+            <div class="card">
+                <div class="field">
+                    <label for="skills">Core Skills</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">⚡</span>
+                        <input type="text" id="skills" name="skills" placeholder="React, TypeScript, Node.js, System Design…">
+                    </div>
+                    <span class="hint">Separate skills with commas</span>
+                </div>
+                <div class="field">
+                    <label for="tools_technologies">Tools & Technologies</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">🛠</span>
+                        <input type="text" id="tools_technologies" name="tools_technologies" placeholder="Docker, AWS, PostgreSQL, Figma, Git…">
+                    </div>
+                    <span class="hint">Frameworks, platforms, software</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Extra -->
+        <div class="section s-extra">
+            <div class="section-label">
+                <div class="section-icon">🏆</div>
+                <span class="section-title">Projects & Achievements</span>
+                <div class="section-line"></div>
+                <span class="step-chip">5</span>
+            </div>
+            <div class="card">
+                <div class="field">
+                    <label for="projects">Projects</label>
+                    <textarea id="projects" name="projects" class="no-icon" placeholder="Project Name — brief description, tech used, impact/results. Add multiple projects on separate lines."></textarea>
+                </div>
+                <div class="field">
+                    <label for="certifications">Certifications</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">📜</span>
+                        <input type="text" id="certifications" name="certifications" placeholder="AWS Certified Developer, Google Analytics, etc.">
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="achievements">Achievements</label>
+                    <textarea id="achievements" name="achievements" class="no-icon" placeholder="Notable wins, awards, metrics, promotions… Quantify where possible (e.g. increased revenue by 30%)."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="submit-wrap">
+            <button type="submit" class="btn-generate">
+                <span class="btn-icon">✦</span>
+                Generate My Resume
+                <span class="btn-icon">→</span>
+            </button>
+            <p class="note">🔒 Your data is processed securely and never stored.</p>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    // ── Scroll-triggered section reveals ──
+    const sections = document.querySelectorAll('.section');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+            if (entry.isIntersecting) {
+                const el = entry.target;
+                const delay = 0; // already staggered by position
+                el.style.animationDelay = delay + 'ms';
+                el.classList.add('visible');
+                observer.unobserve(el);
+            }
+        });
+    }, { threshold: 0.12 });
+    sections.forEach((s, i) => {
+        s.style.animationDelay = (i * 80) + 'ms';
+        observer.observe(s);
+    });
+
+    // ── Reading progress bar ──
+    const bar = document.getElementById('progressBar');
+    window.addEventListener('scroll', () => {
+        const scrolled = window.scrollY;
+        const total = document.body.scrollHeight - window.innerHeight;
+        bar.style.width = Math.min((scrolled / total) * 100, 100) + '%';
+    });
+
+    // ── Input shine effect on focus ──
+    document.querySelectorAll('input, textarea').forEach(el => {
+        el.addEventListener('focus', () => {
+            el.closest('.card')?.style.setProperty('border-color', 'rgba(99,179,237,0.2)');
+        });
+        el.addEventListener('blur', () => {
+            el.closest('.card')?.style.removeProperty('border-color');
+        });
+    });
+
+    // ── Trigger first sections immediately ──
+    setTimeout(() => {
+        sections.forEach((s, i) => {
+            setTimeout(() => {
+                s.style.animationDelay = '0ms';
+                s.classList.add('visible');
+            }, i * 100);
+        });
+    }, 300);
+</script>
+</body>
+</html>
