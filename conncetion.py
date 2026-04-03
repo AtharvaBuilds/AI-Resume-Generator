@@ -3,7 +3,7 @@
 import os
 from openai import OpenAI
 
-client = OpenAI(api_key='sk-10042ceca3e54e73b49819a4d0619a90', base_url="https://api.deepseek.com")
+client = OpenAI(api_key='xyz', base_url="https://api.deepseek.com")
 
 system_prompt='''
 You are an expert ATS-optimized resume writer with 15+ years of experience in crafting high-impact, role-specific resumes.
